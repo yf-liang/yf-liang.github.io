@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4 Tables Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        /* ===== TABLES GRID ===== */
+        .tables-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== TABLE CARD ===== */
+        .table-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .table-header {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-header h2 i {
+            font-size: 1.2rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* Table 2 header color */
+        .table-card:nth-child(2) .table-header {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+
+        /* Table 3 header color */
+        .table-card:nth-child(3) .table-header {
+            background: linear-gradient(to right, #e74c3c, #c0392b);
+        }
+
+        /* Table 4 header color */
+        .table-card:nth-child(4) .table-header {
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+        }
+
+        /* ===== TABLE STYLES ===== */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+        }
+
+        .data-table th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #eaeaea;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .data-table td {
+            padding: 16px 20px;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        .data-table td:first-child {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        /* Status Indicators */
+        .status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status.active {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Priority Indicators */
+        .priority {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .priority.high {
+            background: #ffebee;
+            color: #e53935;
+        }
+
+        .priority.medium {
+            background: #fff8e1;
+            color: #ff8f00;
+        }
+
+        .priority.low {
+            background: #e8f5e9;
+            color: #43a047;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .progress-70 {
+            width: 70%;
+            background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .progress-85 {
+            width: 85%;
+            background: linear-gradient(to right, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .progress-60 {
+            width: 60%;
+            background: linear-gradient(to right, #fa709a 0%, #fee140 100%);
+        }
+
+        .progress-90 {
+            width: 90%;
+            background: linear-gradient(to right, #a8edea 0%, #fed6e3 100%);
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: #f0f0f0;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .action-btn:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #2ecc71;
+        }
+
+        .action-btn.delete:hover {
+            background: #e74c3c;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== SEARCH AND FILTERS ===== */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            width: 300px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            padding: 0 15px;
+            width: 100%;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #555;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .tables-grid {
+                gap: 20px;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-card {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .table-card:nth-child(2) { animation-delay: 0.1s; }
+        .table-card:nth-child(3) { animation-delay: 0.2s; }
+        .table-card:nth-child(4) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-table"></i> Data Tables Dashboard</h1>
+            <p>Overview of key information across 4 categories</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search across all tables...">
+            </div>
+            <div class="filter-options">
+                <button class="filter-btn active"><i class="fas fa-filter"></i> All</button>
+                <button class="filter-btn"><i class="fas fa-check-circle"></i> Active</button>
+                <button class="filter-btn"><i class="fas fa-clock"></i> Recent</button>
+            </div>
+        </div>
+
+        <!-- 4 Tables Grid (2x2) -->
+        <div class="tables-grid">
+
+            <!-- Table 1: User List -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2><i class="fas fa-users"></i> User Management</h2>
+                    <div class="badge">12 Active</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Smith</td>
+                            <td>Administrator</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Sarah Johnson</td>
+                            <td>Editor</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mike Williams</td>
+                            <td>Viewer</td>
+                            <td><span class="status pending">Pending</span></td>
+                            <td>
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Emma Davis</td>
+                            <td>Moderator</td>
+                            <td><span class="status active">Active</span></td>
+                            <td>
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Robert Brown</td>
+                            <td>Contributor</td>
+                            <td><span class="status inactive">Inactive</span></td>
+                            <td>
+                                <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table 2: Task List -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2><i class="fas fa-tasks"></i> Task List</h2>
+                    <div class="badge">8 Pending</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Priority</th>
+                            <th>Progress</th>
+                            <th>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Design Homepage</td>
+                            <td><span class="priority high"><i class="fas fa-exclamation-circle"></i> High</span></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-70"></div>
+                                </div>
+                                <small>70%</small>
+                            </td>
+                            <td>2024-03-15</td>
+                        </tr>
+                        <tr>
+                            <td>Write Documentation</td>
+                            <td><span class="priority medium"><i class="fas fa-minus-circle"></i> Medium</span></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-85"></div>
+                                </div>
+                                <small>85%</small>
+                            </td>
+                            <td>2024-03-20</td>
+                        </tr>
+                        <tr>
+                            <td>Bug Fixes</td>
+                            <td><span class="priority high"><i class="fas fa-exclamation-circle"></i> High</span></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-60"></div>
+                                </div>
+                                <small>60%</small>
+                            </td>
+                            <td>2024-03-10</td>
+                        </tr>
+                        <tr>
+                            <td>API Integration</td>
+                            <td><span class="priority medium"><i class="fas fa-minus-circle"></i> Medium</span></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-90"></div>
+                                </div>
+                                <small>90%</small>
+                            </td>
+                            <td>2024-03-25</td>
+                        </tr>
+                        <tr>
+                            <td>Testing Phase</td>
+                            <td><span class="priority low"><i class="fas fa-check-circle"></i> Low</span></td>
+                            <td>
+                                <div class="progress-container">
+                                    <div class="progress-bar progress-70"></div>
+                                </div>
+                                <small>70%</small>
+                            </td>
+                            <td>2024-04-01</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table 3: Orders List -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Recent Orders</h2>
+                    <div class="badge">24 Today</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#ORD-7841</td>
+                            <td>Alex Turner</td>
+                            <td>$245.99</td>
+                            <td><span class="status completed">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-7842</td>
+                            <td>Maria Garcia</td>
+                            <td>$189.50</td>
+                            <td><span class="status pending">Processing</span></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-7843</td>
+                            <td>David Lee</td>
+                            <td>$324.75</td>
+                            <td><span class="status completed">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-7844</td>
+                            <td>Sophia Wilson</td>
+                            <td>$98.25</td>
+                            <td><span class="status pending">Shipped</span></td>
+                        </tr>
+                        <tr>
+                            <td>#ORD-7845</td>
+                            <td>James Miller</td>
+                            <td>$450.00</td>
+                            <td><span class="status pending">Pending</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Table 4: Project List -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h2><i class="fas fa-project-diagram"></i> Projects</h2>
+                    <div class="badge">5 Active</div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Project Name</th>
+                            <th>Team</th>
+                            <th>Deadline</th>
+                            <th>Budget</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Website Redesign</td>
+                            <td>Design Team</td>
+                            <td>2024-04-15</td>
+                            <td>$12,500</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile App Dev</td>
+                            <td>Dev Team</td>
+                            <td>2024-05-30</td>
+                            <td>$25,000</td>
+                        </tr>
+                        <tr>
+                            <td>Marketing Campaign</td>
+                            <td>Marketing</td>
+                            <td>2024-03-31</td>
+                            <td>$8,000</td>
+                        </tr>
+                        <tr>
+                            <td>CRM Implementation</td>
+                            <td>IT Team</td>
+                            <td>2024-06-15</td>
+                            <td>$18,000</td>
+                        </tr>
+                        <tr>
+                            <td>Data Migration</td>
+                            <td>Data Team</td>
+                            <td>2024-04-30</td>
+                            <td>$6,500</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Data Tables Dashboard. Last updated: Today, 10:45 AM</p>
+            <p>Total items across all tables: <strong>20</strong> | Showing 5 items per table</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.querySelector('.search-box input');
+            const tableRows = document.querySelectorAll('.data-table tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Add filter logic here
+                    console.log(`Filter: ${this.textContent}`);
+                });
+            });
+
+            // Row click highlight
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    tableRows.forEach(r => r.style.background = '');
+                    this.style.background = '#f0f8ff';
+                });
+            });
+
+            // Action buttons
+            const editButtons = document.querySelectorAll('.action-btn.edit');
+            const deleteButtons = document.querySelectorAll('.action-btn.delete');
+
+            editButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const row = this.closest('tr');
+                    const name = row.cells[0].textContent;
+                    alert(`Edit: ${name}`);
+                });
+            });
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const row = this.closest('tr');
+                    const name = row.cells[0].textContent;
+                    if (confirm(`Delete "${name}"?`)) {
+                        row.style.opacity = '0.5';
+                        setTimeout(() => {
+                            row.remove();
+                            updateTableCounts();
+                        }, 300);
+                    }
+                });
+            });
+
+            // Update badge counts
+            function updateTableCounts() {
+                const tables = document.querySelectorAll('.table-card');
+                tables.forEach(table => {
+                    const visibleRows = table.querySelectorAll('.data-table tbody tr').length;
+                    const badge = table.querySelector('.badge');
+                    if (badge) {
+                        badge.textContent = `${visibleRows} Items`;
+                    }
+                });
+            }
+
+            // Hover animations for table cards
+            const tableCards = document.querySelectorAll('.table-card');
+            tableCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add sample data button (for demo)
+            const header = document.querySelector('.header');
+            const addButton = document.createElement('button');
+            addButton.innerHTML = '<i class="fas fa-plus"></i> Add Sample Data';
+            addButton.style.cssText = `
+                margin-top: 15px;
+                padding: 10px 20px;
+                background: #3498db;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s;
+            `;
+            addButton.onmouseenter = () => addButton.style.background = '#2980b9';
+            addButton.onmouseleave = () => addButton.style.background = '#3498db';
+
+            addButton.addEventListener('click', function() {
+                // Add a new row to the first table
+                const firstTable = document.querySelector('.data-table tbody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
+                    <td>New User</td>
+                    <td>Guest</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td>
+                        <button class="action-btn edit"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                firstTable.appendChild(newRow);
+                updateTableCounts();
+                alert('Sample data added to first table!');
+            });
+
+            header.appendChild(addButton);
+        });
+    </script>
+</body>
+</html>
